@@ -1,10 +1,10 @@
 import streamlit as st
 import requests
 
-# Your API key
+# ✅ Your OpenWeather API key
 API_KEY = "c4e37c7603120b4a7a7b00466033c83e"
 
-# Function to fetch weather
+# 🌍 Function to fetch weather
 def get_weather(city_name):
     base_url = "http://api.openweathermap.org/data/2.5/weather?"
     complete_url = f"{base_url}appid={API_KEY}&q={city_name}&units=metric"
@@ -31,14 +31,21 @@ def get_weather(city_name):
     except Exception as e:
         return {"error": str(e)}
 
-# Streamlit Page Config
-st.set_page_config(page_title="Nigeria Weather App", page_icon="☀️", layout="centered")
+# 🎨 Page Config
+st.set_page_config(page_title="Seplat Weather Predictor", page_icon="🌦", layout="centered")
 
-# Title
-st.markdown("<h1 style='text-align: center; color: #1E90FF;'>Nigeria Weather App</h1>", unsafe_allow_html=True)
-st.write("Select any **Nigerian State** below to check its real-time weather.")
+# 🏷️ Custom Banner Header
+st.markdown(
+    """
+    <div style="background-color:#1E90FF;padding:15px;border-radius:10px;">
+        <h1 style="color:white;text-align:center;">Seplat Nigeria Weather Predictor</h1>
+        <p style="color:white;text-align:center;">Check real-time weather for safe travel across Nigerian states</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-# States list
+# 📍 All Nigerian States (36 + FCT)
 nigerian_states = [
     "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue",
     "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe",
@@ -47,24 +54,57 @@ nigerian_states = [
     "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara", "FCT Abuja"
 ]
 
-# Dropdown
-selected_state = st.selectbox("Search and select a state:", sorted(nigerian_states))
+# 📌 Searchable Dropdown
+selected_state = st.selectbox(
+    "Select or search a Nigerian state:",
+    sorted(nigerian_states),
+    index=sorted(nigerian_states).index("Lagos")  # default Lagos
+)
 
-# Button
+# 🚀 Show Weather
 if st.button("Get Weather Report"):
     result = get_weather(selected_state)
     if "error" in result:
         st.error(result["error"])
     else:
-        st.success(f"Weather report for {result['city']}")
-        
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Temperature", f"{result['temperature']}°C", f"Feels like {result['feels_like']}°C")
-        col2.metric("Humidity", f"{result['humidity']}%")
-        col3.metric("Wind Speed", f"{result['wind_speed']} m/s")
+        st.markdown(f"### ✅ Weather Report for {result['city']}")
+        st.write("---")
 
-        col4, col5 = st.columns(2)
-        col4.metric("Pressure", f"{result['pressure']} hPa")
-        col5.metric("Condition", result['weather'])
+        # 🔹 Card-like layout using HTML + CSS
+        st.markdown(
+            f"""
+            <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;">
 
-st.markdown("<hr><p style='text-align: center; color: gray;'>Powered by OpenWeatherMap API</p>", unsafe_allow_html=True)
+                <div style="background:#ff9999;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>🌡️ Temperature</h4>
+                    <p style="font-size:22px;">{result['temperature']}°C</p>
+                    <small>Feels like {result['feels_like']}°C</small>
+                </div>
+
+                <div style="background:#99ccff;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>💧 Humidity</h4>
+                    <p style="font-size:22px;">{result['humidity']}%</p>
+                </div>
+
+                <div style="background:#99ff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>💨 Wind Speed</h4>
+                    <p style="font-size:22px;">{result['wind_speed']} m/s</p>
+                </div>
+
+                <div style="background:#ffcc99;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>🔽 Pressure</h4>
+                    <p style="font-size:22px;">{result['pressure']} hPa</p>
+                </div>
+
+                <div style="background:#ffff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>🌤️ Condition</h4>
+                    <p style="font-size:22px;">{result['weather']}</p>
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+# Footer
+st.markdown("<hr><p style='text-align: center; color: gray;'>Powered by OpenWeatherMap API 🌍</p>", unsafe_allow_html=True)
