@@ -1,110 +1,89 @@
 import streamlit as st
 import requests
+from datetime import datetime
 
-# ✅ Your OpenWeather API key
-API_KEY = "c4e37c7603120b4a7a7b00466033c83e"
+# --- CONFIG ---
+API_KEY = "c4e37c7603120b4a7a7b00466033c83e"  # replace with secret in production
 
-# 🌍 Function to fetch weather
+# --- FUNCTIONS ---
 def get_weather(city_name):
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    complete_url = f"{base_url}appid={API_KEY}&q={city_name}&units=metric"
-
+    """Fetch current weather from OpenWeatherMap for a city in Nigeria."""
+    base_url = "http://api.openweathermap.org/data/2.5/weather"
+    params = {"appid": API_KEY, "q": f"{city_name},NG", "units": "metric"}
     try:
-        response = requests.get(complete_url)
-        if response.status_code == 200:
-            data = response.json()
-            main_data = data.get('main')
-            weather_data = data.get('weather')[0]
-            wind_data = data.get('wind')
-
+        resp = requests.get(base_url, params=params, timeout=12)
+        if resp.status_code == 200:
+            d = resp.json()
+            main = d.get("main", {})
+            weather = (d.get("weather") or [{}])[0]
+            wind = d.get("wind", {})
             return {
-                "city": city_name.capitalize(),
-                "weather": weather_data.get('description').capitalize(),
-                "temperature": main_data.get('temp'),
-                "feels_like": main_data.get('feels_like'),
-                "humidity": main_data.get('humidity'),
-                "pressure": main_data.get('pressure'),
-                "wind_speed": wind_data.get('speed')
+                "city": city_name,
+                "condition": (weather.get("description") or "").capitalize(),
+                "temperature": main.get("temp"),
+                "feels_like": main.get("feels_like"),
+                "humidity": main.get("humidity"),
+                "pressure": main.get("pressure"),
+                "wind_speed": wind.get("speed"),
+                "raw": d
             }
         else:
-            return {"error": f"Error fetching data: {response.status_code}"}
+            return {"error": f"OpenWeather error {resp.status_code}: {resp.text}"}
     except Exception as e:
         return {"error": str(e)}
 
-# 🎨 Page Config
-st.set_page_config(page_title="Seplat Weather Predictor", page_icon="🌦", layout="centered")
+# --- PAGE SETUP ---
+st.set_page_config(page_title="Seplat Nigeria Weather Predictor", layout="centered")
+st.title("Seplat Nigeria Weather Predictor")
+st.caption("Search or select a Nigerian city to view current weather conditions. (Data from OpenWeatherMap)")
 
-# 🏷️ Custom Banner Header
-st.markdown(
-    """
-    <div style="background-color:#1E90FF;padding:15px;border-radius:10px;">
-        <h1 style="color:white;text-align:center;">Seplat Nigeria Weather Predictor</h1>
-        <p style="color:white;text-align:center;">Check real-time weather for safe travel across Nigerian states</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# 📍 All Nigerian States (36 + FCT)
-nigerian_states = [
-    "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue",
-    "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe",
-    "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara",
-    "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau",
-    "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara", "FCT Abuja"
+# --- CITIES LIST ---
+cities_ng = [
+    "Abakaliki","Abeokuta","Abuja","Ado-Ekiti","Akure","Asaba","Awka","Bauchi","Benin City",
+    "Birnin Kebbi","Calabar","Damaturu","Dutse","Enugu","Gombe","Gusau","Ibadan","Ikeja",
+    "Ilorin","Jalingo","Jos","Kaduna","Kano","Katsina","Lafia","Lagos","Lokoja",
+    "Makurdi","Maiduguri","Minna","Oshogbo","Owerri","Port Harcourt","Sokoto","Umuahia",
+    "Uyo","Yenagoa","Yola","Zaria","Ibeno"
 ]
+cities_ng = sorted(set(cities_ng), key=lambda x: x.lower())
 
-# 📌 Searchable Dropdown
-selected_state = st.selectbox(
-    "Select or search a Nigerian state:",
-    sorted(nigerian_states),
-    index=sorted(nigerian_states).index("Lagos")  # default Lagos
-)
+# --- SEARCHABLE SELECTBOX ---
+# Streamlit's selectbox supports typing to jump/filter.
+selected_city = st.selectbox("Search or select a city", options=cities_ng, index=cities_ng.index("Lagos"))
 
-# 🚀 Show Weather
+# --- ACTION ---
 if st.button("Get Weather Report"):
-    result = get_weather(selected_state)
-    if "error" in result:
-        st.error(result["error"])
+    if not selected_city:
+        st.warning("Please select a city first.")
     else:
-        st.markdown(f"### ✅ Weather Report for {result['city']}")
-        st.write("---")
+        with st.spinner("Fetching weather..."):
+            result = get_weather(selected_city)
 
-        # 🔹 Card-like layout using HTML + CSS
-        st.markdown(
-            f"""
-            <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;">
+        if "error" in result:
+            st.error(result["error"])
+        else:
+            # Header info
+            time_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+            st.subheader(f"Weather — {result['city']}")
+            st.write(f"Condition: **{result['condition']}** • Updated: {time_str}")
+            st.write("")  # spacing
 
-                <div style="background:#ff9999;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>🌡️ Temperature</h4>
-                    <p style="font-size:22px;">{result['temperature']}°C</p>
-                    <small>Feels like {result['feels_like']}°C</small>
-                </div>
+            # Top row: temperature, humidity, wind
+            tcol1, tcol2, tcol3 = st.columns(3)
+            tcol1.metric(label="Temperature", value=f"{result['temperature']} °C", delta=f"Feels like {result['feels_like']} °C")
+            tcol2.metric(label="Humidity", value=f"{result['humidity']} %")
+            tcol3.metric(label="Wind Speed", value=f"{result['wind_speed']} m/s")
 
-                <div style="background:#99ccff;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>💧 Humidity</h4>
-                    <p style="font-size:22px;">{result['humidity']}%</p>
-                </div>
+            # Bottom row: pressure and condition (large)
+            bcol1, bcol2 = st.columns(2)
+            bcol1.metric(label="Pressure", value=f"{result['pressure']} hPa")
+            bcol2.write("### Condition")
+            bcol2.write(f"**{result['condition']}**")
 
-                <div style="background:#99ff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>💨 Wind Speed</h4>
-                    <p style="font-size:22px;">{result['wind_speed']} m/s</p>
-                </div>
-
-                <div style="background:#ffcc99;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>🔽 Pressure</h4>
-                    <p style="font-size:22px;">{result['pressure']} hPa</p>
-                </div>
-
-                <div style="background:#ffff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>🌤️ Condition</h4>
-                    <p style="font-size:22px;">{result['weather']}</p>
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+            # Optional: show raw JSON for debugging (collapsed)
+            with st.expander("Raw API response (debug)"):
+                st.json(result["raw"])
 
 # Footer
-st.markdown("<hr><p style='text-align: center; color: gray;'>Powered by OpenWeatherMap API 🌍</p>", unsafe_allow_html=True)
+st.write("---")
+st.write("Powered by OpenWeatherMap API")
