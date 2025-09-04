@@ -40,4 +40,64 @@ st.write("Check real-time weather for safe travel across Nigerian states.")
 
 # 📍 All Nigerian States (36 + FCT)
 nigerian_states = [
-    "Abia", "Adamawa",
+    "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue",
+    "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe",
+    "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara",
+    "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau",
+    "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara", "FCT Abuja"
+]
+
+# 📌 Searchable Dropdown
+selected_state = st.selectbox(
+    "Select or search a Nigerian state:",
+    sorted(nigerian_states),
+    index=sorted(nigerian_states).index("Lagos")  # default Lagos
+)
+
+# 🚀 Show Weather
+if st.button("Get Weather Report"):
+    result = get_weather(selected_state)
+    if "error" in result:
+        st.error(result["error"])
+    else:
+        st.subheader(f"Weather Report for {result['city']}")
+        st.write("---")
+
+        # 🔹 Card-like layout using markdown
+        st.markdown(
+            f"""
+            <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;">
+
+                <div style="background:#ff9999;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>Temperature</h4>
+                    <p style="font-size:22px;">{result['temperature']}°C</p>
+                    <small>Feels like {result['feels_like']}°C</small>
+                </div>
+
+                <div style="background:#99ccff;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>Humidity</h4>
+                    <p style="font-size:22px;">{result['humidity']}%</p>
+                </div>
+
+                <div style="background:#99ff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>Wind Speed</h4>
+                    <p style="font-size:22px;">{result['wind_speed']} m/s</p>
+                </div>
+
+                <div style="background:#ffcc99;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>Pressure</h4>
+                    <p style="font-size:22px;">{result['pressure']} hPa</p>
+                </div>
+
+                <div style="background:#ffff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
+                    <h4>Condition</h4>
+                    <p style="font-size:22px;">{result['weather']}</p>
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+# Footer
+st.markdown("<hr><p style='text-align: center; color: gray;'>Powered by OpenWeatherMap API</p>", unsafe_allow_html=True)
