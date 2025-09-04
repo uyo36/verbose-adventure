@@ -34,9 +34,16 @@ def get_weather(city_name):
 # 🎨 Page Config
 st.set_page_config(page_title="Seplat Weather Predictor", page_icon="🌦", layout="centered")
 
-# 🏷️ Title
-st.title("Seplat Nigeria Weather Predictor")
-st.write("Check real-time weather for safe travel across Nigerian states.")
+# 🏷️ Custom Banner Header
+st.markdown(
+    """
+    <div style="background-color:#1E90FF;padding:15px;border-radius:10px;">
+        <h1 style="color:white;text-align:center;">Seplat Nigeria Weather Predictor</h1>
+        <p style="color:white;text-align:center;">Check real-time weather for safe travel across Nigerian states</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # 📍 All Nigerian States (36 + FCT)
 nigerian_states = [
@@ -60,44 +67,18 @@ if st.button("Get Weather Report"):
     if "error" in result:
         st.error(result["error"])
     else:
-        st.subheader(f"Weather Report for {result['city']}")
-        st.write("---")
+        st.markdown(f"### ✅ Weather Report for {result['city']}")
+        st.success(f"🌤️ {result['weather']}")
 
-        # 🔹 Card-like layout using markdown
-        st.markdown(
-            f"""
-            <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;">
+        # 🔹 Display metrics in a clean grid
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Temperature 🌡️", f"{result['temperature']}°C", f"Feels like {result['feels_like']}°C")
+        col2.metric("Humidity 💧", f"{result['humidity']}%")
+        col3.metric("Wind Speed 💨", f"{result['wind_speed']} m/s")
 
-                <div style="background:#ff9999;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>Temperature</h4>
-                    <p style="font-size:22px;">{result['temperature']}°C</p>
-                    <small>Feels like {result['feels_like']}°C</small>
-                </div>
-
-                <div style="background:#99ccff;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>Humidity</h4>
-                    <p style="font-size:22px;">{result['humidity']}%</p>
-                </div>
-
-                <div style="background:#99ff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>Wind Speed</h4>
-                    <p style="font-size:22px;">{result['wind_speed']} m/s</p>
-                </div>
-
-                <div style="background:#ffcc99;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>Pressure</h4>
-                    <p style="font-size:22px;">{result['pressure']} hPa</p>
-                </div>
-
-                <div style="background:#ffff99;padding:20px;border-radius:10px;width:200px;text-align:center;">
-                    <h4>Condition</h4>
-                    <p style="font-size:22px;">{result['weather']}</p>
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        col4, col5 = st.columns(2)
+        col4.metric("Pressure 🔽", f"{result['pressure']} hPa")
+        col5.metric("Condition 🌤️", result['weather'])
 
 # Footer
-st.markdown("<hr><p style='text-align: center; color: gray;'>Powered by OpenWeatherMap API</p>", unsafe_allow_html=True)
+st.markdown("<hr><p style='text-align: center; color: gray;'>Powered by OpenWeatherMap API 🌍</p>", unsafe_allow_html=True)
