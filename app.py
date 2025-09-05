@@ -34,12 +34,15 @@ def get_weather(city_name):
 # 🎨 Page Config
 st.set_page_config(page_title="Seplat Weather Predictor", page_icon="🌦", layout="centered")
 
+# 🖼️ Company Logo (top-left)
+st.image("idI4VwJOYz_logos.png", width=120)
+
 # 🏷️ Custom Banner Header
 st.markdown(
     """
     <div style="background-color:#1E90FF;padding:15px;border-radius:10px;">
         <h1 style="color:white;text-align:center;">Seplat Nigeria Weather Predictor</h1>
-        <p style="color:white;text-align:center;">Check real-time weather for safe travel across Nigerian states</p>
+        <p style="color:white;text-align:center;">Check real-time weather for safe travel across Nigerian states — or anywhere in the world 🌍</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -54,21 +57,29 @@ nigerian_states = [
     "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara", "FCT Abuja"
 ]
 
-# 📌 Searchable Dropdown
-selected_state = st.selectbox(
-    "Select or search a Nigerian state:",
-    sorted(nigerian_states),
-    index=sorted(nigerian_states).index("Lagos")  # default Lagos
-)
+# 📌 User Input (Global Access)
+st.write("🌍 You can type any city in the world or pick from Nigerian states below:")
+
+col1, col2 = st.columns([2, 1])
+with col1:
+    manual_city = st.text_input("Enter a city name (anywhere in the world):", "")
+with col2:
+    selected_state = st.selectbox(
+        "Or select a Nigerian state:",
+        sorted(nigerian_states),
+        index=sorted(nigerian_states).index("Lagos")  # default Lagos
+    )
 
 # 🚀 Show Weather
 if st.button("Get Weather Report"):
-    result = get_weather(selected_state)
+    city_to_check = manual_city.strip() if manual_city else selected_state
+    result = get_weather(city_to_check)
+
     if "error" in result:
         st.error(result["error"])
     else:
         st.markdown(f"### ✅ Weather Report for {result['city']}")
-        st.success(f"🌤️ {result['weather']}")
+        st.success(f"{result['weather']}")
 
         # 🔹 Display metrics in a clean grid
         col1, col2, col3 = st.columns(3)
