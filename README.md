@@ -1,59 +1,49 @@
 # 🌦 Seplat Weather Predictor
 
-A Streamlit web app that provides real-time weather information across all Nigerian states using the OpenWeatherMap API, designed for safe travel planning.
+Seplat Weather Predictor is a simple yet powerful web app built with **Streamlit** that provides real-time weather updates for all 36 states in Nigeria (including FCT Abuja).  
+It fetches live weather data from the **OpenWeatherMap API** and presents it in a clean, card-based layout for easy interpretation.  
 
 ---
 
-## 🚀 Features
-- Searchable dropdown for all **36 Nigerian states + FCT**.
-- Real-time weather data (temperature, humidity, wind speed, pressure, and condition).
-- Card-style weather display for better readability.
-- Powered by **OpenWeatherMap API**.
+## 📖 Features
+- Real-time weather data for all Nigerian states  
+- Searchable dropdown menu for selecting states quickly  
+- Displays temperature, feels-like temperature, humidity, wind speed, air pressure, and overall weather condition  
+- Clean and responsive card layout design for easy readability  
+- Powered by **Streamlit Cloud** for deployment  
 
 ---
 
-## 🛠️ Tech Stack
-- **Python 3.9+**
-- **Streamlit**
-- **Requests**
-- **OpenWeatherMap API**
+## 📊 Example Response
+
+Here’s what you can expect when checking the weather for **Lagos**:
+
+- **Temperature**: 29°C (Feels like 32°C)  
+- **Humidity**: 78%  
+- **Wind Speed**: 3.5 m/s  
+- **Pressure**: 1013 hPa  
+- **Condition**: Cloudy  
 
 ---
 
-## 🌍 Deployment (Streamlit Cloud)
+## 🚀 Deployment Instructions (Streamlit Cloud)
 
-You can deploy this app easily using **Streamlit Cloud**.
+Follow these steps to deploy your app on **Streamlit Cloud**:
 
-### Steps:
-1. Push your project files (`app.py` and `requirements.txt`) to a **GitHub repository**.
-2. Go to [Streamlit Cloud](https://share.streamlit.io/).
-3. Sign in with your GitHub account.
-4. Select your repository and branch.
-5. Choose the main file path as `app.py`.
-6. Click **Deploy** 🚀
-
-Your app will now be live on a public URL!
-
+1. Push your project files (`app.py` and `requirements.txt`) to a GitHub repository.  
+2. Go to [Streamlit Cloud](https://share.streamlit.io/).  
+3. Log in with your GitHub account.  
+4. Click **New app**, select your repository, and choose `app.py` as the entry file.  
+5. Streamlit Cloud will automatically install dependencies from `requirements.txt`.  
+6. Once deployed, you’ll get a **public link** to share your app.  
 
 ---
 
-## ⚡ Example Usage
-1. Open the app in your browser.
-2. Select or search for a **Nigerian state** from the dropdown menu.
-3. Click **"Get Weather Report"**.
-4. View real-time weather displayed in colorful cards.
+## 🏗️ System Architecture
 
----
-
-## 📡 API Reference
-This app uses the **[OpenWeatherMap API](https://openweathermap.org/api)**.  
-You need a valid API key to fetch real-time weather data.
-
-
----
-
-## 🙌 Acknowledgements
-- [Streamlit](https://streamlit.io/) for the awesome web framework.
-- [OpenWeatherMap](https://openweathermap.org/) for weather data API.
-
-## 📂 Project Structure
+```mermaid
+flowchart TD
+    A[User] -->|Selects State & Requests Weather| B[Streamlit UI]
+    B -->|Fetches Data| C[OpenWeatherMap API]
+    C -->|Returns JSON Response| B
+    B -->|Displays Results in Cards| D[Weather Report Output]
